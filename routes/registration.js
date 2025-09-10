@@ -98,11 +98,6 @@ function getEventById(eventId) {
     .get(eventId);
 }
 
-function getEventsInCategory(cat) {
-  return db().prepare('select * from events where category_id = ?')
-  .get(cat);
-}
-
 function deleteAllStageRegistrationsForSchool(schoolId) {
   db()
     .prepare('DELETE FROM event_registrations WHERE school_id = ?')
@@ -282,15 +277,19 @@ function getSportsEventName(eventId) {
   const sportsEventNames = {
     explorare: 'Explorare',
     monopolium: 'Monopolium',
-    'football-u19-boys': 'Football: Category 1: U19 Boys',
-    'football-u17-boys': 'Football: Category 2: U17 Boys',
-    'football-u19-girls': 'Football: Category 3: U19 Girls',
+    'football-u18-boys': 'Football: Category 1: U18 Boys',
+    'football-u16-boys': 'Football: Category 2: U16 Boys',
+    'football-u18-girls': 'Football: Category 3: U18 Girls',
     'basketball-u19-boys': 'Basketball: Boys (U19)',
+    'basketball-u16-boys': 'Basketball: Boys (U16)',
     'basketball-u19-girls': 'Basketball: Girls (U19)',
+    'basketball-u16-girls': 'Basketball: Girls (U16)',
     'gully-cricket': 'Gully Cricket',
     'table-tennis': 'Table Tennis',
-    'tug-of-war-boys': 'Tug Of War: Boys (Under 16 and Under 19)',
-    'tug-of-war-girls': 'Tug Of War: Girls (Under 16 and Under 19)',
+    'tug-of-war-boys-u16': 'Tug Of War: Boys (Under 16)',
+    'tug-of-war-boys-u19': 'Tug Of War: Boys (Under 19)',
+    'tug-of-war-girls-u16': 'Tug Of War: Girls (Under 16)',
+    'tug-of-war-girls-u19': 'Tug Of War: Girls (Under 19)',
   };
   return sportsEventNames[eventId] || eventId;
 }
@@ -635,8 +634,7 @@ router.get('/check-stage-registration', async (req, res) => {
 
     const school = findSchoolByName(schoolName);
     if (!school) {
-      return res.json({ hasRegistration: false ,
-        events: db().prepare('SELECT * FROM events where category_id == 2').all() });
+      return res.json({ hasRegistration: false });
     }
 
     // Check if school has any stage event registrations
@@ -662,7 +660,6 @@ router.get('/check-stage-registration', async (req, res) => {
         participants: r.participants,
         eventIdPopulated: { name: r.event.name }, // minimal equivalent to populate('eventId', 'name')
       })),
-        events: db().prepare('SELECT * FROM events where category_id == 2').all()   // ✅ array of events
     });
   } catch (error) {
     console.error('Error checking registration:', error);
@@ -683,7 +680,6 @@ router.get('/check-sports-registration', async (req, res) => {
 
     const school = findSchoolByName(schoolName);
     if (!school) {
-      console.log('fuck');
       return res.json({ hasRegistration: false });
     }
 
