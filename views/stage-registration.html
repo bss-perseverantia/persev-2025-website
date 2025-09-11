@@ -379,7 +379,7 @@
     <script>
         let stageEvents = [
             {
-                _id: 'gratia',
+                _id: 9,
                 name: 'Gratia',
                 description: 'Group dance performance competition',
                 minParticipants: 6,
@@ -389,7 +389,7 @@
                 genderRequirement: 'any'
             },
             {
-                _id: 'panache',
+                _id: 10,
                 name: 'Panache',
                 description: 'Fashion and style showcase',
                 minParticipants: 5,
@@ -399,7 +399,7 @@
                 genderRequirement: 'any'
             },
             {
-                _id: 'symphonia',
+                _id: 11,
                 name: 'Symphonia',
                 description: 'Musical performance competition',
                 minParticipants: 5,
@@ -409,7 +409,7 @@
                 genderRequirement: 'any'
             },
             {
-                _id: 'mr-mrs-perseverantia',
+                _id: 12,
                 name: 'Mr. and Mrs. Perseverantia',
                 description: 'Personality and talent showcase for one male and one female participant',
                 minParticipants: 2,
@@ -641,6 +641,9 @@
 
         // Toggle event participation
         function toggleEvent(eventId, participate) {
+            // Convert eventId to number since it comes as string from HTML
+            eventId = parseInt(eventId);
+            
             const participantsSection = document.getElementById(`participants_${eventId}`);
             const eventCard = document.querySelector(`[data-event-id="${eventId}"]`);
 
@@ -667,6 +670,9 @@
 
         // Add participant
         function addParticipant(eventId) {
+            // Convert eventId to number since it comes as string from HTML
+            eventId = parseInt(eventId);
+            
             const event = stageEvents.find(e => e._id === eventId);
             const participantList = document.getElementById(`participant_list_${eventId}`);
             const currentCount = participantList.children.length;
@@ -732,6 +738,9 @@
 
         // Remove participant
         function removeParticipant(eventId, button) {
+            // Convert eventId to number since it comes as string from HTML
+            eventId = parseInt(eventId);
+            
             const event = stageEvents.find(e => e._id === eventId);
             const participantCard = button.closest('.participant-card');
             const participantList = document.getElementById(`participant_list_${eventId}`);
@@ -771,6 +780,9 @@
 
         // Update participant count
         function updateParticipantCount(eventId) {
+            // Convert eventId to number since it comes as string from HTML
+            eventId = parseInt(eventId);
+            
             const participantList = document.getElementById(`participant_list_${eventId}`);
             const count = participantList.children.length;
             const event = stageEvents.find(e => e._id === eventId);
@@ -795,6 +807,9 @@
 
         // Validate event requirements
         function validateEvent(eventId) {
+            // Convert eventId to number since it comes as string from HTML
+            eventId = parseInt(eventId);
+            
             const event = stageEvents.find(e => e._id === eventId);
             const participantList = document.getElementById(`participant_list_${eventId}`);
             const count = participantList.children.length;
