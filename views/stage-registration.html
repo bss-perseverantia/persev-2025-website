@@ -377,12 +377,49 @@
     </div>
 
     <script>
-        // Helper: consistent event lookup by id (handles number/string)
-        function getStageEvent(eventId) {
-            return stageEvents.find(e => String(e.id) === String(eventId));
-        }
-
-        let stageEvents = [];
+        let stageEvents = [
+            {
+                _id: 'gratia',
+                name: 'Gratia',
+                description: 'Group dance performance competition',
+                minParticipants: 6,
+                maxParticipants: 8,
+                minGrade: 9,
+                maxGrade: 12,
+                genderRequirement: 'any'
+            },
+            {
+                _id: 'panache',
+                name: 'Panache',
+                description: 'Fashion and style showcase',
+                minParticipants: 5,
+                maxParticipants: 7,
+                minGrade: 9,
+                maxGrade: 12,
+                genderRequirement: 'any'
+            },
+            {
+                _id: 'symphonia',
+                name: 'Symphonia',
+                description: 'Musical performance competition',
+                minParticipants: 5,
+                maxParticipants: 7,
+                minGrade: 9,
+                maxGrade: 12,
+                genderRequirement: 'any'
+            },
+            {
+                _id: 'mr-mrs-perseverantia',
+                name: 'Mr. and Mrs. Perseverantia',
+                description: 'Personality and talent showcase for one male and one female participant',
+                minParticipants: 2,
+                maxParticipants: 2,
+                minGrade: 9,
+                maxGrade: 12,
+                genderRequirement: 'male_female_required'
+            }
+        ];
+        
         let currentStep = 1;
         let editMode = false;
         let existingRegistrations = [];
@@ -392,16 +429,17 @@
             // Check if we're in edit mode
             const urlParams = new URLSearchParams(window.location.search);
             editMode = urlParams.get('mode') === 'edit';
-
-            await load_events();
+            
             await loadUserSchoolInfo();
+            
             if (editMode) {
                 await loadExistingRegistrations();
                 updateHeaderForEditMode();
             }
-
+            
+            renderEvents();
             setupEventListeners();
-
+            
             if (editMode && existingRegistrations.length > 0) {
                 populateExistingData();
             }
@@ -421,6 +459,7 @@
                 const response = await fetch('/api/check-stage-registration');
                 if (response.ok) {
                     const data = await response.json();
+                    console.log(data)
                     if (data.hasRegistration) {
                         existingRegistrations = data.registrations;
 
@@ -431,21 +470,6 @@
                             document.querySelector('[name="teacherEmail"]').value = data.school.teacherEmail || '';
                         }
                     }
-                    stageEvents = data.events;
-                    renderEvents();
-                }
-            } catch (error) {
-                console.error('Error loading existing registrations:', error);
-            }
-        }
-
-        async function load_events() {
-            try {
-                const response = await fetch('/api/check-stage-registration');
-                if (response.ok) {
-                    const data = await response.json();
-                    stageEvents = data.events;
-                    renderEvents();
                 }
             } catch (error) {
                 console.error('Error loading existing registrations:', error);
@@ -470,21 +494,32 @@
             }
         }
 
-        // Render events dynamically
-        function renderEvents() {
-            const container = document.getElementById('events-container');
-            container.innerHTML = '';
-
-            stageEvents.forEach(event => {
-                const eventCard = createEventCard(event);
-                container.appendChild(eventCard);
-            });
-        }
-
         // Populate existing registration data
         function populateExistingData() {
             existingRegistrations.forEach(registration => {
-                const eventId = registration.eventId;
+                console.log('Processing registration:', registration);
+                
+                // Try to find matching event by name since eventId might not match _id
+                let eventId = registration.eventId;
+                let matchingEvent = null;
+                
+                // First try to find by eventId
+                matchingEvent = stageEvents.find(e => e._id === eventId);
+                
+                // If not found, try to match by event name from eventIdPopulated
+                if (!matchingEvent && registration.eventIdPopulated && registration.eventIdPopulated.name) {
+                    const eventName = registration.eventIdPopulated.name;
+                    matchingEvent = stageEvents.find(e => e.name === eventName);
+                    if (matchingEvent) {
+                        eventId = matchingEvent._id;
+                        console.log(`Matched event by name: ${eventName} -> ${eventId}`);
+                    }
+                }
+                
+                if (!matchingEvent) {
+                    console.warn('No matching event found for registration:', registration);
+                    return;
+                }
 
                 // Select "Yes" for this event
                 const yesRadio = document.querySelector(`input[name="participate_${eventId}"][value="yes"]`);
@@ -523,11 +558,22 @@
             });
         }
 
+        // Render events dynamically
+        function renderEvents() {
+            const container = document.getElementById('events-container');
+            container.innerHTML = '';
+
+            stageEvents.forEach(event => {
+                const eventCard = createEventCard(event);
+                container.appendChild(eventCard);
+            });
+        }
+
         // Create event card HTML
         function createEventCard(event) {
             const div = document.createElement('div');
             div.className = 'event-toggle rounded-2xl p-6';
-            div.dataset.eventId = event.id;
+            div.dataset.eventId = event._id;
 
             div.innerHTML = `
                 <div class="flex flex-col lg:flex-row lg:items-center justify-between mb-4 gap-4">
@@ -535,9 +581,9 @@
                         <h3 class="text-xl text-white font-bold">${event.name}</h3>
                         <p class="text-gray-300 text-sm">${event.description}</p>
                         <div class="flex flex-wrap gap-x-4 gap-y-1 mt-2 text-sm">
-                            <span class="text-[#BE8E30]">Grades: ${event.min_grade}-${event.max_grade}</span>
-                            <span class="text-[#BE8E30]">Team: ${event.min_participants === event.max_participants ? event.min_participants : event.min_participants + '-' + event.max_participants} participants</span>
-                            ${event.gender_requirement === 'male_female_required' ?
+                            <span class="text-[#BE8E30]">Grades: ${event.minGrade}-${event.maxGrade}</span>
+                            <span class="text-[#BE8E30]">Team: ${event.minParticipants === event.maxParticipants ? event.minParticipants : event.minParticipants + '-' + event.maxParticipants} participants</span>
+                            ${event.genderRequirement === 'male_female_required' ?
                     '<span class="text-[#BE8E30]">1 male + 1 female required</span>' : ''}
                         </div>
                     </div>
@@ -545,14 +591,14 @@
                         <label class="text-white font-medium text-center sm:text-left">Participate:</label>
                         <div class="flex justify-center sm:justify-start space-x-3">
                             <label class="custom-radio">
-                                <input type="radio" name="participate_${event.id}" value="yes" 
-                                       onchange="toggleEvent('${event.id}', true)">
+                                <input type="radio" name="participate_${event._id}" value="yes" 
+                                       onchange="toggleEvent('${event._id}', true)">
                                 <div class="radio-indicator"></div>
                                 <span class="radio-label">Yes</span>
                             </label>
                             <label class="custom-radio">
-                                <input type="radio" name="participate_${event.id}" value="no" 
-                                       onchange="toggleEvent('${event.id}', false)" checked>
+                                <input type="radio" name="participate_${event._id}" value="no" 
+                                       onchange="toggleEvent('${event._id}', false)" checked>
                                 <div class="radio-indicator"></div>
                                 <span class="radio-label">No</span>
                             </label>
@@ -560,32 +606,32 @@
                     </div>
                 </div>
                 
-                <div id="participants_${event.id}" class="hidden">
+                <div id="participants_${event._id}" class="hidden">
                     <div class="border-t border-[#BE8E30]/30 pt-6">
                         <div class="flex items-center justify-between mb-4">
                             <h4 class="text-lg text-white font-medium">Team Members</h4>
                             <div class="participant-counter px-3 py-1 rounded-full text-sm font-medium">
-                                <span id="count_${event.id}">0</span> / ${event.max_participants} participants
+                                <span id="count_${event._id}">0</span> / ${event.maxParticipants} participants
                             </div>
                         </div>
                         
-                        <div id="participant_list_${event.id}" class="space-y-4 mb-4">
+                        <div id="participant_list_${event._id}" class="space-y-4 mb-4">
                             <!-- Participants will be added here -->
                         </div>
                         
                         <div class="flex space-x-3">
-                            <button type="button" onclick="addParticipant('${event.id}')" 
-                                    id="add_btn_${event.id}"
+                            <button type="button" onclick="addParticipant('${event._id}')" 
+                                    id="add_btn_${event._id}"
                                     class="btn-secondary px-4 py-2 rounded-lg text-sm">
                                 <i class="fas fa-plus mr-2"></i>Add Participant
                             </button>
-                            <button type="button" onclick="removeLastParticipant('${event.id}')" 
-                                    id="remove_btn_${event.id}" class="btn-secondary px-4 py-2 rounded-lg text-sm hidden">
+                            <button type="button" onclick="removeLastParticipant('${event._id}')" 
+                                    id="remove_btn_${event._id}" class="btn-secondary px-4 py-2 rounded-lg text-sm hidden">
                                 <i class="fas fa-minus mr-2"></i>Remove Last
                             </button>
                         </div>
                         
-                        <div id="validation_${event.id}" class="mt-4 text-sm"></div>
+                        <div id="validation_${event._id}" class="mt-4 text-sm"></div>
                     </div>
                 </div>
             `;
@@ -603,14 +649,10 @@
                 eventCard.classList.add('active');
 
                 // Add minimum required participants
-                const event = getStageEvent(eventId);
-                if (!event) {
-                    console.warn('toggleEvent: event not found for id', eventId, stageEvents);
-                    return;
-                }
+                const event = stageEvents.find(e => e._id === eventId);
                 const currentCount = document.querySelectorAll(`#participant_list_${eventId} .participant-card`).length;
 
-                for (let i = currentCount; i < event.min_participants; i++) {
+                for (let i = currentCount; i < event.minParticipants; i++) {
                     addParticipant(eventId);
                 }
             } else {
@@ -625,16 +667,12 @@
 
         // Add participant
         function addParticipant(eventId) {
-            const event = getStageEvent(eventId);
-            if (!event) {
-                console.warn('addParticipant: event not found for id', eventId, stageEvents);
-                return;
-            }
+            const event = stageEvents.find(e => e._id === eventId);
             const participantList = document.getElementById(`participant_list_${eventId}`);
             const currentCount = participantList.children.length;
 
-            if (currentCount >= event.max_participants) {
-                showMessage(`Maximum ${event.max_participants} participants allowed for ${event.name}`, 'error');
+            if (currentCount >= event.maxParticipants) {
+                showMessage(`Maximum ${event.maxParticipants} participants allowed for ${event.name}`, 'error');
                 return;
             }
 
@@ -643,7 +681,7 @@
             participantCard.className = 'participant-card rounded-xl p-4';
             participantCard.style.animationDelay = `${currentCount * 0.1}s`;
 
-            const genderRequired = event.gender_requirement === 'male_female_required';
+            const genderRequired = event.genderRequirement === 'male_female_required';
             const genderOptions = genderRequired ?
                 (participantIndex === 1 ?
                     '<option value="male">Male</option>' :
@@ -670,12 +708,12 @@
                         <select name="participant_grade_${eventId}[]" required 
                                 class="input-field w-full px-3 py-2 rounded-lg text-sm">
                             <option value="">Select Grade</option>
-                            ${Array.from({ length: event.max_grade - event.min_grade + 1 }, (_, i) =>
-                `<option value="${event.min_grade + i}">${event.min_grade + i}</option>`
+                            ${Array.from({ length: event.maxGrade - event.minGrade + 1 }, (_, i) =>
+                `<option value="${event.minGrade + i}">${event.minGrade + i}</option>`
             ).join('')}
                         </select>
                     </div>
-                    ${genderRequired || event.gender_requirement !== 'any' ? `
+                    ${genderRequired || event.genderRequirement !== 'any' ? `
                     <div class="md:col-span-${genderRequired ? '3' : '1'}">
                         <label class="block text-gray-300 mb-1 text-sm">Gender *</label>
                         <select name="participant_gender_${eventId}[]" required 
@@ -694,16 +732,12 @@
 
         // Remove participant
         function removeParticipant(eventId, button) {
-            const event = getStageEvent(eventId);
-            if (!event) {
-                console.warn('removeParticipant: event not found for id', eventId, stageEvents);
-                return;
-            }
+            const event = stageEvents.find(e => e._id === eventId);
             const participantCard = button.closest('.participant-card');
             const participantList = document.getElementById(`participant_list_${eventId}`);
 
-            if (participantList.children.length <= event.min_participants) {
-                showMessage(`Minimum ${event.min_participants} participants required for ${event.name}`, 'error');
+            if (participantList.children.length <= event.minParticipants) {
+                showMessage(`Minimum ${event.minParticipants} participants required for ${event.name}`, 'error');
                 return;
             }
 
@@ -739,24 +773,20 @@
         function updateParticipantCount(eventId) {
             const participantList = document.getElementById(`participant_list_${eventId}`);
             const count = participantList.children.length;
-            const event = getStageEvent(eventId);
-            if (!event) {
-                console.warn('updateParticipantCount: event not found for id', eventId, stageEvents);
-                return;
-            }
+            const event = stageEvents.find(e => e._id === eventId);
 
             document.getElementById(`count_${eventId}`).textContent = count;
 
             const addBtn = document.getElementById(`add_btn_${eventId}`);
             const removeBtn = document.getElementById(`remove_btn_${eventId}`);
 
-            if (count >= event.max_participants) {
+            if (count >= event.maxParticipants) {
                 addBtn.classList.add('hidden');
             } else {
                 addBtn.classList.remove('hidden');
             }
 
-            if (count > event.min_participants) {
+            if (count > event.minParticipants) {
                 removeBtn.classList.remove('hidden');
             } else {
                 removeBtn.classList.add('hidden');
@@ -765,22 +795,18 @@
 
         // Validate event requirements
         function validateEvent(eventId) {
-            const event = getStageEvent(eventId);
-            if (!event) {
-                console.warn('validateEvent: event not found for id', eventId, stageEvents);
-                return;
-            }
+            const event = stageEvents.find(e => e._id === eventId);
             const participantList = document.getElementById(`participant_list_${eventId}`);
             const count = participantList.children.length;
             const validationDiv = document.getElementById(`validation_${eventId}`);
 
             let messages = [];
 
-            if (count < event.min_participants) {
-                messages.push(`⚠️ Need at least ${event.min_participants} participants`);
+            if (count < event.minParticipants) {
+                messages.push(`⚠️ Need at least ${event.minParticipants} participants`);
             }
 
-            if (event.gender_requirement === 'male_female_required') {
+            if (event.genderRequirement === 'male_female_required') {
                 const genderSelects = participantList.querySelectorAll('select[name*="gender"]');
                 const selectedGenders = Array.from(genderSelects).map(s => s.value);
                 const hasMale = selectedGenders.includes('male');
@@ -881,10 +907,26 @@
 
                 let summaryHTML = '';
                 existingRegistrations.forEach(registration => {
-                    const eventName =
-                        (registration.eventIdPopulated && registration.eventIdPopulated.name) ||
-                        (getStageEvent(registration.eventId)?.name) ||
-                        'Unknown event';
+                    // Try to get event name from different sources
+                    let eventName = 'Unknown event';
+                    
+                    if (registration.eventIdPopulated && registration.eventIdPopulated.name) {
+                        eventName = registration.eventIdPopulated.name;
+                    } else {
+                        // Find event in our hardcoded array
+                        const event = stageEvents.find(e => e._id === registration.eventId);
+                        if (event) {
+                            eventName = event.name;
+                        } else {
+                            // Try to match by name if eventId doesn't match
+                            if (registration.eventIdPopulated && registration.eventIdPopulated.name) {
+                                const matchedEvent = stageEvents.find(e => e.name === registration.eventIdPopulated.name);
+                                if (matchedEvent) {
+                                    eventName = matchedEvent.name;
+                                }
+                            }
+                        }
+                    }
 
                     summaryHTML += `
                 <div class="bg-green-800/20 rounded-lg p-3">
@@ -993,15 +1035,15 @@
 
             // Collect event registrations
             stageEvents.forEach(event => {
-                const participateYes = document.querySelector(`input[name="participate_${event.id}"][value="yes"]`);
+                const participateYes = document.querySelector(`input[name="participate_${event._id}"][value="yes"]`);
                 if (participateYes && participateYes.checked) {
                     const participants = [];
-                    const participantList = document.getElementById(`participant_list_${event.id}`);
+                    const participantList = document.getElementById(`participant_list_${event._id}`);
 
                     participantList.querySelectorAll('.participant-card').forEach((card, index) => {
-                        const name = card.querySelector(`input[name="participant_name_${event.id}[]"]`).value.trim();
-                        const grade = parseInt(card.querySelector(`select[name="participant_grade_${event.id}[]"]`).value);
-                        const genderSelect = card.querySelector(`select[name="participant_gender_${event.id}[]"]`);
+                        const name = card.querySelector(`input[name="participant_name_${event._id}[]"]`).value.trim();
+                        const grade = parseInt(card.querySelector(`select[name="participant_grade_${event._id}[]"]`).value);
+                        const genderSelect = card.querySelector(`select[name="participant_gender_${event._id}[]"]`);
                         const gender = genderSelect ? genderSelect.value : '';
 
                         if (name && grade) {
@@ -1025,7 +1067,7 @@
 
                     if (participants.length > 0) {
                         formData.events.push({
-                            eventId: event.id,
+                            eventId: event._id,
                             participants: participants
                         });
                     }
@@ -1053,17 +1095,17 @@
 
             // Validate each event
             for (let eventReg of formData.events) {
-                const event = stageEvents.find(e => e.id === eventReg.eventId);
+                const event = stageEvents.find(e => e._id === eventReg.eventId);
 
                 // Check participant count
-                if (eventReg.participants.length < event.min_participants ||
-                    eventReg.participants.length > event.max_participants) {
-                    showMessage(`${event.name} requires ${event.min_participants}-${event.max_participants} participants.`, 'error');
+                if (eventReg.participants.length < event.minParticipants ||
+                    eventReg.participants.length > event.maxParticipants) {
+                    showMessage(`${event.name} requires ${event.minParticipants}-${event.maxParticipants} participants.`, 'error');
                     return false;
                 }
 
                 // Check gender requirements
-                if (event.gender_requirement === 'male_female_required') {
+                if (event.genderRequirement === 'male_female_required') {
                     const genders = eventReg.participants.map(p => p.gender);
                     if (!genders.includes('male') || !genders.includes('female')) {
                         showMessage(`${event.name} requires both male and female participants.`, 'error');
@@ -1073,8 +1115,8 @@
 
                 // Check grade requirements
                 for (let participant of eventReg.participants) {
-                    if (participant.grade < event.min_grade || participant.grade > event.max_grade) {
-                        showMessage(`${event.name} is for grades ${event.min_grade}-${event.max_grade} only.`, 'error');
+                    if (participant.grade < event.minGrade || participant.grade > event.maxGrade) {
+                        showMessage(`${event.name} is for grades ${event.minGrade}-${event.maxGrade} only.`, 'error');
                         return false;
                     }
                 }
