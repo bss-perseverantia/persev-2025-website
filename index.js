@@ -84,6 +84,8 @@ if (schoolConfig.schools) {
 app.use('/assets', express.static(path.join(__dirname, 'assets')));
 app.use("/views",express.static(path.join(__dirname, 'views')));
 app.use("/static",express.static(path.join(__dirname, 'static')));
+app.use(require("express").static("static"));
+
 
 // Use API routes
 app.use('/api', registrationRoutes);
@@ -187,11 +189,11 @@ app.get('/organizing-committee', (req, res) => {
 app.get('/handbook', (req, res) => {
     res.sendFile(path.join(__dirname, 'assets', 'handbook.pdf'));
 });
-
+/*
 app.get('/leaderboard', (req, res) => {
     res.sendFile(path.join(__dirname, 'views', 'leaderboard_coming_soon.html'));
 });
-
+*/
 app.get('/style.css', (req, res) => {
     res.sendFile(path.join(__dirname, 'style.css'));
 });
@@ -235,6 +237,22 @@ app.get('/admin/dashboard', (req, res) => {
     res.sendFile(path.join(__dirname, 'views/website-admin-dashboard.html'));
 });
 
+
+const loc = __dirname + "/leaderboard/db.json";
+const config = require("./leaderboard/config.js");
+const { DB } = require("./leaderboard/Database.js");
+const db = new DB(loc, config.events, config.schools);
+require("./leaderboard/api.js")(app, db);
+
+app.get("/leaderboard", (req, res) => {
+  res.sendFile(__dirname + "/views/leaderboard.html");
+});
+
+app.get("/lb/admin", (req, res) => {
+  res.sendFile(__dirname + "/views/leaderboard-admin.html");
+});
+
+
 // Catch-all route for undefined paths to serve 404.html
 app.use((req, res) => {
     res.status(404).sendFile(path.join(__dirname, 'views', '404.html'));
@@ -258,4 +276,7 @@ async function startServer() {
 
 // Start the server
 startServer();
+
+
+
 
