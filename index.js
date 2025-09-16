@@ -205,7 +205,7 @@ app.get('/config.json', (req, res) => {
 });
 // Route to serve the index.html file
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'views', 'index.html'));
+    res.sendFile(path.join(__dirname, 'views', 'index.min.html'));
 });
 
 app.get('/school-login', (req, res) => {
