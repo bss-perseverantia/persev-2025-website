@@ -128,9 +128,15 @@
 
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            grid-template-columns: repeat(5, 1fr);
             gap: 20px;
             margin-bottom: 30px;
+        }
+        
+        @media (max-width: 1200px) {
+            .stats-grid {
+                grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            }
         }
 
         .stat-card {
@@ -449,6 +455,11 @@
                 <div class="stat-description">Registered Schools</div>
             </div>
             <div class="stat-card">
+                <div class="stat-label">Total Participants</div>
+                <div class="stat-number" id="totalParticipants">-</div>
+                <div class="stat-description">Across All Events</div>
+            </div>
+            <div class="stat-card">
                 <div class="stat-label">Stage Events</div>
                 <div class="stat-number" id="stageRegistrations">-</div>
                 <div class="stat-description">Total Registrations</div>
@@ -548,6 +559,8 @@
                 document.getElementById('stageRegistrations').textContent = stats.totalStageRegistrations || 0;
                 document.getElementById('sportsRegistrations').textContent = stats.totalSportsRegistrations || 0;
                 document.getElementById('classroomRegistrations').textContent = stats.totalClassroomRegistrations || 0;
+                
+                // Don't set totalParticipants here - it will be calculated from loaded data
             } catch (error) {
                 console.error('Error loading statistics:', error);
             }
@@ -560,6 +573,55 @@
                 loadClassroomRegistrations(),
                 loadSummary()
             ]);
+            
+            // Calculate and update total participants after all data is loaded
+            updateTotalParticipants();
+        }
+
+        function updateTotalParticipants() {
+            let totalParticipants = 0;
+            
+            // Count stage participants
+            if (allData.stage && Array.isArray(allData.stage)) {
+                allData.stage.forEach(registration => {
+                    if (registration.events && Array.isArray(registration.events)) {
+                        registration.events.forEach(event => {
+                            if (event.participants && Array.isArray(event.participants)) {
+                                totalParticipants += event.participants.length;
+                            }
+                        });
+                    }
+                });
+            }
+            
+            // Count sports participants  
+            if (allData.sports && Array.isArray(allData.sports)) {
+                allData.sports.forEach(registration => {
+                    if (registration.events && Array.isArray(registration.events)) {
+                        registration.events.forEach(event => {
+                            if (event.participants && Array.isArray(event.participants)) {
+                                totalParticipants += event.participants.length;
+                            }
+                        });
+                    }
+                });
+            }
+            
+            // Count classroom participants
+            if (allData.classroom && Array.isArray(allData.classroom)) {
+                allData.classroom.forEach(registration => {
+                    if (registration.events && Array.isArray(registration.events)) {
+                        registration.events.forEach(event => {
+                            if (event.participants && Array.isArray(event.participants)) {
+                                totalParticipants += event.participants.length;
+                            }
+                        });
+                    }
+                });
+            }
+            
+            console.log('Total participants calculated:', totalParticipants);
+            document.getElementById('totalParticipants').textContent = totalParticipants;
         }
 
         async function loadStageRegistrations() {
