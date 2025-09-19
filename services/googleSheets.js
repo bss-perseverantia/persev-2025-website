@@ -127,58 +127,110 @@ class GoogleSheetsService {
         }
     }
 
-    async addStageRegistration(registrationData) {
+    async addStageRegistration(dbModels) {
         if (!this.sheets) {
             console.warn('Google Sheets not available, skipping sync');
             return;
         }
 
         try {
-            const { school, events } = registrationData;
+            console.log('📊 Rebuilding Stage Registrations sheet from database...');
             
             // Ensure the sheet exists
             await this.createSheetIfNotExists('Stage Registrations');
             
-            // Get all existing data from the sheet
-            const existingData = await this.getAllSheetData();
+            // Get ALL stage registrations from database
+            const allRegistrations = this.getAllStageRegistrationsFromDB(dbModels);
             
-            // Find and remove existing entries for this school
-            const filteredData = this.removeSchoolEntries(existingData, school.name);
-            
-            // Prepare new rows for this school
-            const newRows = [];
-            for (const eventReg of events) {
-                const eventName = eventReg.eventName || 'Unknown Event';
-                
-                for (const participant of eventReg.participants) {
-                    newRows.push([
-                        new Date().toISOString(), // Timestamp
-                        school.name,
-                        school.contingentCode || '',
-                        school.teacherName,
-                        school.teacherMobile,
-                        school.teacherEmail,
-                        eventName,
-                        participant.name,
-                        participant.grade,
-                        participant.gender || '',
-                        participant.participantOrder || ''
-                    ]);
-                }
-            }
+            // Clear the entire sheet and rebuild from scratch
+            await this.rebuildStageSheet(allRegistrations);
 
-            // Combine filtered data with new entries
-            const finalData = [...filteredData, ...newRows];
-            
-            // Clear the sheet and write all data back
-            await this.updateEntireSheet(finalData);
-
-            console.log(`✅ Updated Google Sheets: removed old entries for ${school.name}, added ${newRows.length} new rows`);
-            return { updatedRows: newRows.length };
+            console.log(`✅ Stage Registrations sheet rebuilt with ${allRegistrations.length} total rows`);
+            return { totalRows: allRegistrations.length };
 
         } catch (error) {
-            console.error('❌ Failed to sync to Google Sheets:', error.message);
+            console.error('❌ Failed to rebuild Stage Registrations sheet:', error.message);
             // Don't throw - registration should still succeed even if sheets fails
+        }
+    }
+
+    getAllStageRegistrationsFromDB(dbModels) {
+        const db = dbModels.db();
+        const rows = db.prepare(`
+            SELECT 
+                s.name as school_name,
+                s.contingent_code,
+                s.teacher_name,
+                s.teacher_email,
+                s.teacher_mobile,
+                e.name as event_name,
+                p.name as participant_name,
+                p.grade,
+                p.gender,
+                p.participant_order,
+                er.created_at
+            FROM event_registrations er
+            JOIN schools s ON s.id = er.school_id
+            JOIN events e ON e.id = er.event_id
+            JOIN event_registration_participants p ON p.event_registration_id = er.id
+            ORDER BY s.name, e.name, p.participant_order
+        `).all();
+
+        return rows.map(row => [
+            row.created_at || new Date().toISOString(),
+            row.school_name,
+            row.contingent_code || '',
+            row.teacher_name,
+            row.teacher_mobile,
+            row.teacher_email,
+            row.event_name,
+            row.participant_name,
+            row.grade,
+            row.gender || '',
+            row.participant_order || ''
+        ]);
+    }
+
+    async rebuildStageSheet(allData) {
+        try {
+            // Clear the entire sheet
+            await this.sheets.spreadsheets.values.clear({
+                spreadsheetId: this.spreadsheetId,
+                range: 'Stage Registrations!A:K'
+            });
+
+            // Add headers first
+            const headers = [
+                'Timestamp', 'School Name', 'Contingent Code', 'Teacher Name',
+                'Teacher Mobile', 'Teacher Email', 'Event Name', 'Participant Name',
+                'Grade', 'Gender', 'Participant Order'
+            ];
+
+            await this.sheets.spreadsheets.values.update({
+                spreadsheetId: this.spreadsheetId,
+                range: 'Stage Registrations!A1:K1',
+                valueInputOption: 'RAW',
+                resource: {
+                    values: [headers]
+                }
+            });
+
+            // Add all data if any exists
+            if (allData.length > 0) {
+                await this.sheets.spreadsheets.values.append({
+                    spreadsheetId: this.spreadsheetId,
+                    range: 'Stage Registrations!A:K',
+                    valueInputOption: 'RAW',
+                    resource: {
+                        values: allData
+                    }
+                });
+            }
+
+            console.log(`✅ Stage sheet completely rebuilt with ${allData.length} rows`);
+        } catch (error) {
+            console.error('❌ Failed to rebuild stage sheet:', error.message);
+            throw error;
         }
     }
 
@@ -336,65 +388,111 @@ class GoogleSheetsService {
         }
     }
 
-    async addSportsRegistration(registrationData) {
+    async addSportsRegistration(dbModels) {
         if (!this.sheets) {
             console.warn('Google Sheets not available, skipping sync');
             return;
         }
 
         try {
-            console.log('📊 Starting Google Sheets sync for sports registration...');
-            
-            const { school, events } = registrationData;
+            console.log('📊 Rebuilding Sports Registrations sheet from database...');
             
             // Ensure the sheet exists
             await this.createSheetIfNotExists('Sports Registrations');
             
-            // Get all existing data from the sheet
-            const existingData = await this.getAllSportsSheetData();
+            // Get ALL sports registrations from database
+            const allRegistrations = this.getAllSportsRegistrationsFromDB(dbModels);
             
-            // Find and remove existing entries for this school
-            const filteredData = this.removeSchoolEntries(existingData, school.name);
-            
-            // Prepare new rows for this school
-            const newRows = [];
-            for (const eventReg of events) {
-                const eventName = eventReg.eventName || 'Unknown Event';
-                console.log(`Processing sports event: ${eventName}`);
-                
-                for (const participant of eventReg.participants) {
-                    const row = [
-                        new Date().toISOString(), // Timestamp
-                        school.name,
-                        school.contingentCode || '',
-                        school.teacherName,
-                        school.teacherMobile,
-                        school.teacherEmail,
-                        eventName,
-                        participant.name,
-                        participant.grade,
-                        participant.gender || '',
-                        participant.weight || '',
-                        participant.participantOrder || ''
-                    ];
-                    newRows.push(row);
-                }
-            }
+            // Clear the entire sheet and rebuild from scratch
+            await this.rebuildSportsSheet(allRegistrations);
 
-            // Combine filtered data with new entries
-            const finalData = [...filteredData, ...newRows];
-            
-            // Clear the sheet and write all data back
-            await this.updateEntireSportsSheet(finalData);
-
-            console.log(`✅ Updated Sports Google Sheets: removed old entries for ${school.name}, added ${newRows.length} new rows`);
-            console.log('✅ Sports registration sync completed');
-            
-            return { updatedRows: newRows.length };
+            console.log(`✅ Sports Registrations sheet rebuilt with ${allRegistrations.length} total rows`);
+            return { totalRows: allRegistrations.length };
 
         } catch (error) {
-            console.error('❌ Failed to sync sports data to Google Sheets:', error.message);
+            console.error('❌ Failed to rebuild Sports Registrations sheet:', error.message);
             // Don't throw - registration should still succeed even if sheets fails
+        }
+    }
+
+    getAllSportsRegistrationsFromDB(dbModels) {
+        const db = dbModels.db();
+        const rows = db.prepare(`
+            SELECT 
+                s.name as school_name,
+                s.contingent_code,
+                s.teacher_name,
+                s.teacher_email,
+                s.teacher_mobile,
+                sr.event_name,
+                p.name as participant_name,
+                p.grade,
+                p.gender,
+                p.weight,
+                p.participant_order,
+                sr.registration_date
+            FROM sports_registrations sr
+            JOIN schools s ON s.id = sr.school_id
+            JOIN sports_registration_participants p ON p.sports_registration_id = sr.id
+            ORDER BY s.name, sr.event_name, p.participant_order
+        `).all();
+
+        return rows.map(row => [
+            row.registration_date || new Date().toISOString(),
+            row.school_name,
+            row.contingent_code || '',
+            row.teacher_name,
+            row.teacher_mobile,
+            row.teacher_email,
+            row.event_name,
+            row.participant_name,
+            row.grade,
+            row.gender || '',
+            row.weight || '',
+            row.participant_order || ''
+        ]);
+    }
+
+    async rebuildSportsSheet(allData) {
+        try {
+            // Clear the entire sheet
+            await this.sheets.spreadsheets.values.clear({
+                spreadsheetId: this.spreadsheetId,
+                range: 'Sports Registrations!A:L'
+            });
+
+            // Add headers first
+            const headers = [
+                'Timestamp', 'School Name', 'Contingent Code', 'Teacher Name',
+                'Teacher Mobile', 'Teacher Email', 'Event Name', 'Participant Name',
+                'Grade', 'Gender', 'Weight (kg)', 'Participant Order'
+            ];
+
+            await this.sheets.spreadsheets.values.update({
+                spreadsheetId: this.spreadsheetId,
+                range: 'Sports Registrations!A1:L1',
+                valueInputOption: 'RAW',
+                resource: {
+                    values: [headers]
+                }
+            });
+
+            // Add all data if any exists
+            if (allData.length > 0) {
+                await this.sheets.spreadsheets.values.append({
+                    spreadsheetId: this.spreadsheetId,
+                    range: 'Sports Registrations!A:L',
+                    valueInputOption: 'RAW',
+                    resource: {
+                        values: allData
+                    }
+                });
+            }
+
+            console.log(`✅ Sports sheet completely rebuilt with ${allData.length} rows`);
+        } catch (error) {
+            console.error('❌ Failed to rebuild sports sheet:', error.message);
+            throw error;
         }
     }
 
@@ -511,62 +609,101 @@ class GoogleSheetsService {
         }
     }
 
-    async addClassroomRegistration(registrationData) {
+    async addClassroomRegistration(dbModels) {
         if (!this.sheets) {
             console.warn('Google Sheets not available, skipping sync');
             return;
         }
 
         try {
-            console.log('📊 Starting Google Sheets sync for classroom registration...');
-            
-            const { school, events } = registrationData;
+            console.log('📊 Rebuilding Classroom Events sheet from database...');
             
             // Ensure the sheet exists
             await this.createSheetIfNotExists(this.classroomSheetName);
             
-            // Get all existing data from the sheet
-            const existingData = await this.getAllClassroomSheetData();
+            // Get ALL classroom registrations from database
+            const allRegistrations = this.getAllClassroomRegistrationsFromDB(dbModels);
             
-            // Find and remove existing entries for this school
-            const filteredData = this.removeSchoolEntries(existingData, school.name);
-            
-            // Prepare new rows for this school
-            const newRows = [];
-            for (const eventReg of events) {
-                const eventName = eventReg.eventName || 'Unknown Event';
-                console.log(`Processing classroom event: ${eventName}`);
-                
-                for (const participant of eventReg.participants) {
-                    const row = [
-                        new Date().toISOString(), // Timestamp
-                        school.name,
-                        school.contingentCode || '',
-                        school.teacherName,
-                        school.teacherMobile,
-                        school.teacherEmail,
-                        eventName,
-                        participant.name,
-                        participant.grade
-                    ];
-                    newRows.push(row);
+            // Clear the entire sheet and rebuild from scratch
+            await this.rebuildClassroomSheet(allRegistrations);
+
+            console.log(`✅ Classroom Events sheet rebuilt with ${allRegistrations.length} total rows`);
+            return { totalRows: allRegistrations.length };
+
+        } catch (error) {
+            console.error('❌ Failed to rebuild Classroom Events sheet:', error.message);
+            // Don't throw - registration should still succeed even if sheets fails
+        }
+    }
+
+    getAllClassroomRegistrationsFromDB(dbModels) {
+        const db = dbModels.db();
+        const rows = db.prepare(`
+            SELECT 
+                s.name as school_name,
+                s.contingent_code,
+                s.teacher_name,
+                s.teacher_email,
+                s.teacher_mobile,
+                cr.event_name,
+                p.name as participant_name,
+                p.grade,
+                cr.registration_date
+            FROM classroom_registrations cr
+            JOIN schools s ON s.id = cr.school_id
+            JOIN classroom_registration_participants p ON p.classroom_registration_id = cr.id
+            ORDER BY s.name, cr.event_name, p.participant_order
+        `).all();
+
+        return rows.map(row => [
+            row.registration_date || new Date().toISOString(),
+            row.school_name,
+            row.contingent_code || '',
+            row.teacher_name,
+            row.teacher_mobile,
+            row.teacher_email,
+            row.event_name,
+            row.participant_name,
+            row.grade
+        ]);
+    }
+
+    async rebuildClassroomSheet(allData) {
+        try {
+            // Clear the entire sheet
+            await this.sheets.spreadsheets.values.clear({
+                spreadsheetId: this.spreadsheetId,
+                range: `${this.classroomSheetName}!A:I`
+            });
+
+            // Add headers first
+            const headers = this.getClassroomHeaders();
+
+            await this.sheets.spreadsheets.values.update({
+                spreadsheetId: this.spreadsheetId,
+                range: `${this.classroomSheetName}!A1:I1`,
+                valueInputOption: 'RAW',
+                resource: {
+                    values: [headers]
                 }
+            });
+
+            // Add all data if any exists
+            if (allData.length > 0) {
+                await this.sheets.spreadsheets.values.append({
+                    spreadsheetId: this.spreadsheetId,
+                    range: `${this.classroomSheetName}!A:I`,
+                    valueInputOption: 'RAW',
+                    resource: {
+                        values: allData
+                    }
+                });
             }
 
-            // Combine filtered data with new entries
-            const finalData = [...filteredData, ...newRows];
-            
-            // Clear the sheet and write all data back
-            await this.updateEntireClassroomSheet(finalData);
-
-            console.log(`✅ Updated Classroom Google Sheets: removed old entries for ${school.name}, added ${newRows.length} new rows`);
-            console.log('✅ Classroom registration sync completed');
-            
-            return { updatedRows: newRows.length };
-            
+            console.log(`✅ Classroom sheet completely rebuilt with ${allData.length} rows`);
         } catch (error) {
-            console.error('❌ Error syncing classroom registration to Google Sheets:', error);
-            // Don't throw - registration should still succeed even if sheets fails
+            console.error('❌ Failed to rebuild classroom sheet:', error.message);
+            throw error;
         }
     }
 

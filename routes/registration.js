@@ -563,10 +563,7 @@ router.post('/register/stage', requireAuth, async (req, res) => {
     // Sync to Google Sheets in background (non-blocking)
     setImmediate(async () => {
       try {
-        await googleSheetsService.addStageRegistration({
-          school: schoolData,
-          events: eventsWithNames,
-        });
+        await googleSheetsService.addStageRegistration(dbModels);
         console.log('✅ Background Google Sheets sync completed');
       } catch (sheetsError) {
         console.warn('⚠️ Background Google Sheets sync failed:', sheetsError.message);
@@ -851,10 +848,7 @@ router.post('/register/classroom', async (req, res) => {
     // Sync to Google Sheets in background (non-blocking)
     setImmediate(async () => {
       try {
-        await googleSheetsService.addClassroomRegistration({
-          school: schoolData,
-          events: eventsWithNames,
-        });
+        await googleSheetsService.addClassroomRegistration(dbModels);
         console.log('✅ Background Google Sheets sync completed for classroom');
       } catch (sheetsError) {
         console.warn('⚠️ Background Google Sheets sync failed for classroom:', sheetsError.message);
@@ -942,10 +936,7 @@ router.post('/register/sports', requireAuth, async (req, res) => {
     // Sync to Google Sheets in background (non-blocking)
     setImmediate(async () => {
       try {
-        await googleSheetsService.addSportsRegistration({
-          school: schoolData,
-          events: eventsWithNames,
-        });
+        await googleSheetsService.addSportsRegistration(dbModels);
         console.log('✅ Background Google Sheets sync completed for sports');
       } catch (sheetsError) {
         console.warn('⚠️ Background Google Sheets sync failed for sports:', sheetsError.message);
