@@ -423,12 +423,18 @@
       </div>
 
       <!-- Quick Stats Section -->
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8 center">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8 center">
 
         <div class="card-gradient rounded-2xl p-6 text-center border border-[#BE8E30]/30">
           <i class="fas fa-clipboard-list text-3xl text-[#BE8E30] mb-3"></i>
           <h4 class="text-2xl text-white font-bold" id="total-registrations">0</h4>
           <p class="text-gray-300 text-sm">Total Event Registrations</p>
+        </div>
+        
+        <div class="card-gradient rounded-2xl p-6 text-center border border-[#BE8E30]/30">
+          <i class="fas fa-users text-3xl text-[#BE8E30] mb-3"></i>
+          <h4 class="text-2xl text-white font-bold" id="total-participants">0</h4>
+          <p class="text-gray-300 text-sm">Total Participants</p>
         </div>
         
         <div class="card-gradient rounded-2xl p-6 text-center border border-[#BE8E30]/30">
@@ -609,6 +615,8 @@
 
   const updateRegistrationStats = () => {
     const registrationsElement = document.getElementById("total-registrations");
+    const participantsElement = document.getElementById("total-participants");
+    
     if (registrationsElement) {
       fetch('/api/stats/registrations')
         .then(response => response.json())
@@ -626,6 +634,74 @@
           registrationsElement.textContent = '0';
           update(); // Still call animation even if fetch fails
         });
+    }
+    
+    // Fetch participant count separately
+    if (participantsElement) {
+      fetchTotalParticipants();
+    }
+  };
+
+  const fetchTotalParticipants = async () => {
+    const participantsElement = document.getElementById("total-participants");
+    try {
+      // Fetch data from all registration types
+      const [stageResponse, sportsResponse, classroomResponse] = await Promise.all([
+        fetch('/admin/api/registrations/stage').catch(() => ({ json: () => [] })),
+        fetch('/admin/api/registrations/sports').catch(() => ({ json: () => [] })),
+        fetch('/admin/api/registrations/classroom').catch(() => ({ json: () => [] }))
+      ]);
+
+      const stageData = await stageResponse.json();
+      const sportsData = await sportsResponse.json();
+      const classroomData = await classroomResponse.json();
+
+      let totalParticipants = 0;
+
+      // Count stage participants
+      if (Array.isArray(stageData)) {
+        stageData.forEach(registration => {
+          if (registration.events && Array.isArray(registration.events)) {
+            registration.events.forEach(event => {
+              if (event.participants && Array.isArray(event.participants)) {
+                totalParticipants += event.participants.length;
+              }
+            });
+          }
+        });
+      }
+
+      // Count sports participants
+      if (Array.isArray(sportsData)) {
+        sportsData.forEach(registration => {
+          if (registration.events && Array.isArray(registration.events)) {
+            registration.events.forEach(event => {
+              if (event.participants && Array.isArray(event.participants)) {
+                totalParticipants += event.participants.length;
+              }
+            });
+          }
+        });
+      }
+
+      // Count classroom participants
+      if (Array.isArray(classroomData)) {
+        classroomData.forEach(registration => {
+          if (registration.events && Array.isArray(registration.events)) {
+            registration.events.forEach(event => {
+              if (event.participants && Array.isArray(event.participants)) {
+                totalParticipants += event.participants.length;
+              }
+            });
+          }
+        });
+      }
+
+      participantsElement.textContent = totalParticipants;
+      console.log('Total participants calculated:', totalParticipants);
+    } catch (error) {
+      console.error('Error fetching participant data:', error);
+      participantsElement.textContent = '0';
     }
   };
 
