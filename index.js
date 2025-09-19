@@ -219,6 +219,87 @@ app.get('/api/participating-schools', (req, res) => {
     res.json({ count: unames.length });
 });
 
+// Total participants API endpoint
+app.get('/api/stats/participants', async (req, res) => {
+    try {
+        const dbModels = require('./database/init_db');
+        const db = dbModels.db();
+        
+        if (!db) {
+            return res.status(500).json({ error: 'Database not initialized' });
+        }
+        
+        let totalParticipants = 0;
+        
+        // Count stage participants
+        const stageRegistrations = db.prepare(`
+            SELECT COUNT(*) as count 
+            FROM event_registration_participants erp
+            JOIN event_registrations er ON erp.event_registration_id = er.id
+        `).get();
+        totalParticipants += stageRegistrations.count || 0;
+        
+        // Count sports participants  
+        const sportsRegistrations = db.prepare(`
+            SELECT COUNT(*) as count 
+            FROM sports_registration_participants
+        `).get();
+        totalParticipants += sportsRegistrations.count || 0;
+        
+        // Count classroom participants
+        const classroomRegistrations = db.prepare(`
+            SELECT COUNT(*) as count 
+            FROM classroom_registration_participants
+        `).get();
+        totalParticipants += classroomRegistrations.count || 0;
+        
+        res.json({ 
+            totalParticipants,
+            breakdown: {
+                stage: stageRegistrations.count || 0,
+                sports: sportsRegistrations.count || 0,
+                classroom: classroomRegistrations.count || 0
+            }
+        });
+        
+    } catch (error) {
+        console.error('Error fetching participant stats:', error);
+        res.status(500).json({ error: 'Failed to fetch participant statistics' });
+    }
+});
+
+// Add registration stats API
+app.get('/api/stats/registrations', async (req, res) => {
+    try {
+        const dbModels = require('./database/init_db');
+        const db = dbModels.db();
+        
+        if (!db) {
+            return res.status(500).json({ error: 'Database not initialized' });
+        }
+        
+        // Count total registrations
+        const stageCount = db.prepare('SELECT COUNT(*) as count FROM event_registrations').get();
+        const sportsCount = db.prepare('SELECT COUNT(*) as count FROM sports_registrations').get();
+        const classroomCount = db.prepare('SELECT COUNT(*) as count FROM classroom_registrations').get();
+        const schoolCount = db.prepare('SELECT COUNT(DISTINCT id) as count FROM schools').get();
+        
+        const totalRegistrations = (stageCount.count || 0) + (sportsCount.count || 0) + (classroomCount.count || 0);
+        
+        res.json({
+            totalRegistrations,
+            totalStageRegistrations: stageCount.count || 0,
+            totalSportsRegistrations: sportsCount.count || 0,
+            totalClassroomRegistrations: classroomCount.count || 0,
+            totalSchools: schoolCount.count || 0
+        });
+        
+    } catch (error) {
+        console.error('Error fetching registration stats:', error);
+        res.status(500).json({ error: 'Failed to fetch registration statistics' });
+    }
+});
+
 // Classroom registration page
 app.get('/classroom-registration', isLoggedIn, (req, res) => {
     res.sendFile(path.join(__dirname, 'views/classroom-registration.html'));

@@ -636,72 +636,19 @@
         });
     }
     
-    // Fetch participant count separately
+    // Fetch actual participant count
     if (participantsElement) {
-      fetchTotalParticipants();
-    }
-  };
-
-  const fetchTotalParticipants = async () => {
-    const participantsElement = document.getElementById("total-participants");
-    try {
-      // Fetch data from all registration types
-      const [stageResponse, sportsResponse, classroomResponse] = await Promise.all([
-        fetch('/admin/api/registrations/stage').catch(() => ({ json: () => [] })),
-        fetch('/admin/api/registrations/sports').catch(() => ({ json: () => [] })),
-        fetch('/admin/api/registrations/classroom').catch(() => ({ json: () => [] }))
-      ]);
-
-      const stageData = await stageResponse.json();
-      const sportsData = await sportsResponse.json();
-      const classroomData = await classroomResponse.json();
-
-      let totalParticipants = 0;
-
-      // Count stage participants
-      if (Array.isArray(stageData)) {
-        stageData.forEach(registration => {
-          if (registration.events && Array.isArray(registration.events)) {
-            registration.events.forEach(event => {
-              if (event.participants && Array.isArray(event.participants)) {
-                totalParticipants += event.participants.length;
-              }
-            });
-          }
+      fetch('/api/stats/participants')
+        .then(response => response.json())
+        .then(data => {
+          participantsElement.textContent = data.totalParticipants || 0;
+          console.log('Total participants loaded:', data.totalParticipants);
+          console.log('Breakdown:', data.breakdown);
+        })
+        .catch(error => {
+          console.error('Error fetching participant stats:', error);
+          participantsElement.textContent = '0';
         });
-      }
-
-      // Count sports participants
-      if (Array.isArray(sportsData)) {
-        sportsData.forEach(registration => {
-          if (registration.events && Array.isArray(registration.events)) {
-            registration.events.forEach(event => {
-              if (event.participants && Array.isArray(event.participants)) {
-                totalParticipants += event.participants.length;
-              }
-            });
-          }
-        });
-      }
-
-      // Count classroom participants
-      if (Array.isArray(classroomData)) {
-        classroomData.forEach(registration => {
-          if (registration.events && Array.isArray(registration.events)) {
-            registration.events.forEach(event => {
-              if (event.participants && Array.isArray(event.participants)) {
-                totalParticipants += event.participants.length;
-              }
-            });
-          }
-        });
-      }
-
-      participantsElement.textContent = totalParticipants;
-      console.log('Total participants calculated:', totalParticipants);
-    } catch (error) {
-      console.error('Error fetching participant data:', error);
-      participantsElement.textContent = '0';
     }
   };
 
