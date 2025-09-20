@@ -563,23 +563,30 @@
         });
       });
       
-      // Animate stats on page load
-       function update() {
+      // Animate stats on page load - Modified to animate individual elements
+      function animateCounter(element, finalValue) {
+        let currentValue = 0;
+        const increment = finalValue / 50;
+        
+        const timer = setInterval(() => {
+          currentValue += increment;
+          if (currentValue >= finalValue) {
+            element.textContent = finalValue;
+            clearInterval(timer);
+          } else {
+            element.textContent = Math.floor(currentValue);
+          }
+        }, 20);
+      }
+      
+      // Legacy function for backward compatibility
+      function update() {
         const stats = document.querySelectorAll('h4');
         stats.forEach((stat, index) => {
           const finalValue = parseInt(stat.textContent);
-          let currentValue = 0;
-          const increment = finalValue / 50;
-          
-          const timer = setInterval(() => {
-            currentValue += increment;
-            if (currentValue >= finalValue) {
-              stat.textContent = finalValue;
-              clearInterval(timer);
-            } else {
-              stat.textContent = Math.floor(currentValue);
-            }
-          }, 20 + (index * 10));
+          if (finalValue > 0) { // Only animate if there's a value
+            animateCounter(stat, finalValue);
+          }
         });
       };
       
@@ -627,12 +634,12 @@
             reg += 20; // tehehe
           }
           registrationsElement.textContent = reg;
-          update(); // Call the animation function after updating all stats
+          // Animate only the registrations counter
+          animateCounter(registrationsElement, reg);
         })
         .catch(error => {
           console.error('Error fetching registration stats:', error);
           registrationsElement.textContent = '0';
-          update(); // Still call animation even if fetch fails
         });
     }
     
@@ -641,9 +648,15 @@
       fetch('/api/stats/participants')
         .then(response => response.json())
         .then(data => {
-          participantsElement.textContent = data.totalParticipants || 0;
-          console.log('Total participants loaded:', data.totalParticipants);
+          const participantCount = data.totalParticipants || 0;
+          participantsElement.textContent = participantCount;
+          console.log('Total participants loaded:', participantCount);
           console.log('Breakdown:', data.breakdown);
+          
+          // Animate the participants counter after setting the value
+          if (participantCount > 0) {
+            animateCounter(participantsElement, participantCount);
+          }
         })
         .catch(error => {
           console.error('Error fetching participant stats:', error);
