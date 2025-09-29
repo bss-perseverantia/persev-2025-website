@@ -155,7 +155,7 @@ app.post("/pass/validate/",async (req,res)=>{
       res.redirect("/")
     })
     app.get("/panel",isLoggedIn,(req,res)=>{
-        const data = fs.readFileSync(__dirname+"/views/panel.html").toString()
+        const data = fs.readFileSync(__dirname+"/views/panelclosed.html").toString()
         const auth = req.session.username+"-"+req.session.password
         res.send(data.replace(/(!auth)/g,auth));
     })
