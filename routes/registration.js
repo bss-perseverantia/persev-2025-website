@@ -505,6 +505,7 @@ router.get('/events/stage', async (req, res) => {
 
 // Register for stage events
 router.post('/register/stage', requireAuth, async (req, res) => {
+  return res.status(503).json({ message: 'Stage registrations are currently closed.' });
   try {
     const { school: schoolData, events } = req.body;
 
@@ -778,6 +779,7 @@ router.get('/check-classroom-registration', async (req, res) => {
 
 // Register for classroom events
 router.post('/register/classroom', async (req, res) => {
+  return res.status(503).json({ message: 'Classroom registrations are currently closed.' });
   try {
     const { school: schoolData, events } = req.body;
 
@@ -883,6 +885,7 @@ router.get('/stats/registrations', async (req, res) => {
 
 // Sports registration endpoint
 router.post('/register/sports', requireAuth, async (req, res) => {
+  return res.status(503).json({ message: 'Sports registrations are currently closed.' });
   try {
     const { school: schoolData, events } = req.body;
 
