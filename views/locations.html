@@ -291,14 +291,105 @@
       @media (max-width: 768px) {
         .table-container {
           overflow-x: auto;
+          -webkit-overflow-scrolling: touch;
         }
         
         .event-table {
-          min-width: 700px;
+          min-width: 100%;
+          border-radius: 15px;
+        }
+        
+        .event-table table {
+          min-width: 650px;
+          font-size: 14px;
+        }
+        
+        .table-header th {
+          padding: 12px 8px;
+          font-size: 13px;
+        }
+        
+        .table-row td {
+          padding: 12px 8px;
+          font-size: 13px;
         }
         
         .search-input {
           max-width: 100%;
+          font-size: 16px;
+          padding: 12px 45px 12px 20px;
+        }
+        
+        .day-header {
+          font-size: 2rem;
+          padding: 20px;
+        }
+        
+        h1 {
+          font-size: 2.5rem !important;
+        }
+        
+        .container {
+          padding-left: 12px;
+          padding-right: 12px;
+        }
+        
+        /* Improve mobile table readability */
+        .event-name {
+          min-width: 120px;
+          font-weight: 600;
+        }
+        
+        .table-cell {
+          white-space: nowrap;
+        }
+        
+        /* Mobile scroll indicator */
+        .table-container::after {
+          content: "← Swipe to see more →";
+          display: block;
+          text-align: center;
+          padding: 8px;
+          font-size: 12px;
+          color: rgba(255, 215, 0, 0.6);
+          background: rgba(8, 16, 50, 0.8);
+          border-radius: 0 0 15px 15px;
+        }
+      }
+      
+      @media (max-width: 480px) {
+        h1 {
+          font-size: 2rem !important;
+        }
+        
+        .day-header {
+          font-size: 1.75rem;
+          padding: 15px;
+        }
+        
+        .event-table table {
+          min-width: 600px;
+          font-size: 13px;
+        }
+        
+        .table-header th {
+          padding: 10px 6px;
+          font-size: 12px;
+        }
+        
+        .table-row td {
+          padding: 10px 6px;
+          font-size: 12px;
+        }
+        
+        .search-input {
+          padding: 10px 40px 10px 18px;
+          font-size: 16px;
+        }
+        
+        .container {
+          padding-left: 8px;
+          padding-right: 8px;
         }
       }
     </style>
@@ -394,32 +485,32 @@
     <div class="min-h-screen pb-8" style="background: linear-gradient(135deg, #0D122C 0%, #131D3F 100%);">
       
       <!-- Header Section -->
-      <div class="pt-12 pb-8 text-center">
-        <h1 class="text-5xl font-bold text-white animate-slide-in-top" style="font-family: Mestizo">
+      <div class="pt-8 pb-6 text-center px-4">
+        <h1 class="text-3xl md:text-5xl font-bold text-white animate-slide-in-top" style="font-family: Mestizo">
           Event Locations & Schedule
         </h1>
-        <p class="text-xl text-gray-300 mt-4 animate-fade-in-up">
+        <p class="text-lg md:text-xl text-gray-300 mt-4 animate-fade-in-up">
           Find your event locations and timings for Perseverantia 2025
         </p>
       </div>
 
       <!-- Search Section -->
-      <div class="search-container flex justify-center mb-8 px-4">
-        <div class="relative">
+      <div class="search-container flex justify-center mb-6 px-4">
+        <div class="relative w-full max-w-md">
           <input 
             type="text" 
             id="searchInput" 
             placeholder="Search events, locations, or timings..." 
-            class="search-input pl-12"
+            class="search-input pl-12 w-full"
           >
           <i class="fas fa-search search-icon absolute left-4 top-1/2 transform -translate-y-1/2"></i>
         </div>
       </div>
 
       <!-- Day 1 Table -->
-      <div class="container mx-auto px-4 mb-8">
+      <div class="container mx-auto px-2 sm:px-4 mb-6">
         <div class="event-table">
-          <div class="day-header text-center py-6">
+          <div class="day-header text-center py-4 md:py-6">
             <h2>Day 1</h2>
           </div>
           
@@ -427,60 +518,60 @@
             <table class="w-full">
               <thead class="table-header">
                 <tr>
-                  <th class="px-6 py-4 text-left">Event Name</th>
-                  <th class="px-6 py-4 text-left">Registration Time</th>
-                  <th class="px-6 py-4 text-left">Event Location</th>
-                  <th class="px-6 py-4 text-left">Event Timing</th>
+                  <th class="px-3 sm:px-6 py-3 sm:py-4 text-left">Event Name</th>
+                  <th class="px-3 sm:px-6 py-3 sm:py-4 text-left">Registration Time</th>
+                  <th class="px-3 sm:px-6 py-3 sm:py-4 text-left">Event Location</th>
+                  <th class="px-3 sm:px-6 py-3 sm:py-4 text-left">Event Timing</th>
                 </tr>
               </thead>
               <tbody id="day1-tbody">
                 <tr class="table-row border-b border-gray-200" data-day="1">
-                  <td class="px-6 py-4 event-name">Codeferno</td>
-                  <td class="px-6 py-4 table-cell">7:00 AM - 8:00 AM</td>
-                  <td class="px-6 py-4 table-cell">Computer Lab</td>
-                  <td class="px-6 py-4 table-cell">8:00 AM - 11:00 AM</td>
+                  <td class="px-3 sm:px-6 py-3 sm:py-4 event-name">Codeferno</td>
+                  <td class="px-3 sm:px-6 py-3 sm:py-4 table-cell">7:00 AM - 8:00 AM</td>
+                  <td class="px-3 sm:px-6 py-3 sm:py-4 table-cell">Computer Lab</td>
+                  <td class="px-3 sm:px-6 py-3 sm:py-4 table-cell">8:00 AM - 11:00 AM</td>
                 </tr>
                 <tr class="table-row border-b border-gray-200" data-day="1">
-                  <td class="px-6 py-4 event-name">Football</td>
-                  <td class="px-6 py-4 table-cell">6:00 AM - 7:00 AM</td>
-                  <td class="px-6 py-4 table-cell">Field</td>
-                  <td class="px-6 py-4 table-cell">7:00 AM - 2:00 PM</td>
+                  <td class="px-3 sm:px-6 py-3 sm:py-4 event-name">Football</td>
+                  <td class="px-3 sm:px-6 py-3 sm:py-4 table-cell">6:00 AM - 7:00 AM</td>
+                  <td class="px-3 sm:px-6 py-3 sm:py-4 table-cell">Field</td>
+                  <td class="px-3 sm:px-6 py-3 sm:py-4 table-cell">7:00 AM - 2:00 PM</td>
                 </tr>
                 <tr class="table-row border-b border-gray-200" data-day="1">
-                  <td class="px-6 py-4 event-name">Basketball</td>
-                  <td class="px-6 py-4 table-cell">6:00 AM - 7:00 AM</td>
-                  <td class="px-6 py-4 table-cell">Basketball Court</td>
-                  <td class="px-6 py-4 table-cell">7:00 AM - 12:30 PM</td>
+                  <td class="px-3 sm:px-6 py-3 sm:py-4 event-name">Basketball</td>
+                  <td class="px-3 sm:px-6 py-3 sm:py-4 table-cell">6:00 AM - 7:00 AM</td>
+                  <td class="px-3 sm:px-6 py-3 sm:py-4 table-cell">Basketball Court</td>
+                  <td class="px-3 sm:px-6 py-3 sm:py-4 table-cell">7:00 AM - 12:30 PM</td>
                 </tr>
                 <tr class="table-row border-b border-gray-200" data-day="1">
-                  <td class="px-6 py-4 event-name">Esports</td>
-                  <td class="px-6 py-4 table-cell">7:00 AM - 8:00 AM</td>
-                  <td class="px-6 py-4 table-cell">Dance Room 2</td>
-                  <td class="px-6 py-4 table-cell">8:00 AM - 11:00 AM</td>
+                  <td class="px-3 sm:px-6 py-3 sm:py-4 event-name">Esports</td>
+                  <td class="px-3 sm:px-6 py-3 sm:py-4 table-cell">7:00 AM - 8:00 AM</td>
+                  <td class="px-3 sm:px-6 py-3 sm:py-4 table-cell">Dance Room 2</td>
+                  <td class="px-3 sm:px-6 py-3 sm:py-4 table-cell">8:00 AM - 11:00 AM</td>
                 </tr>
                 <tr class="table-row border-b border-gray-200" data-day="1">
-                  <td class="px-6 py-4 event-name">Gully Cricket</td>
-                  <td class="px-6 py-4 table-cell">7:00 AM - 8:00 AM</td>
-                  <td class="px-6 py-4 table-cell">Heritage Block</td>
-                  <td class="px-6 py-4 table-cell">8:00 AM - 2:00 PM</td>
+                  <td class="px-3 sm:px-6 py-3 sm:py-4 event-name">Gully Cricket</td>
+                  <td class="px-3 sm:px-6 py-3 sm:py-4 table-cell">7:00 AM - 8:00 AM</td>
+                  <td class="px-3 sm:px-6 py-3 sm:py-4 table-cell">Heritage Block</td>
+                  <td class="px-3 sm:px-6 py-3 sm:py-4 table-cell">8:00 AM - 2:00 PM</td>
                 </tr>
                 <tr class="table-row border-b border-gray-200" data-day="1">
-                  <td class="px-6 py-4 event-name">Table Tennis</td>
-                  <td class="px-6 py-4 table-cell">7:00 AM - 8:00 AM</td>
-                  <td class="px-6 py-4 table-cell">Prefab Hall</td>
-                  <td class="px-6 py-4 table-cell">8:00 AM - 11:00 AM</td>
+                  <td class="px-3 sm:px-6 py-3 sm:py-4 event-name">Table Tennis</td>
+                  <td class="px-3 sm:px-6 py-3 sm:py-4 table-cell">7:00 AM - 8:00 AM</td>
+                  <td class="px-3 sm:px-6 py-3 sm:py-4 table-cell">Prefab Hall</td>
+                  <td class="px-3 sm:px-6 py-3 sm:py-4 table-cell">8:00 AM - 11:00 AM</td>
                 </tr>
                 <tr class="table-row border-b border-gray-200" data-day="1">
-                  <td class="px-6 py-4 event-name">Tug of War</td>
-                  <td class="px-6 py-4 table-cell">11:00 AM - 11:30 AM</td>
-                  <td class="px-6 py-4 table-cell">Basketball Court</td>
-                  <td class="px-6 py-4 table-cell">12:30 PM - 2:30 PM</td>
+                  <td class="px-3 sm:px-6 py-3 sm:py-4 event-name">Tug of War</td>
+                  <td class="px-3 sm:px-6 py-3 sm:py-4 table-cell">11:00 AM - 11:30 AM</td>
+                  <td class="px-3 sm:px-6 py-3 sm:py-4 table-cell">Basketball Court</td>
+                  <td class="px-3 sm:px-6 py-3 sm:py-4 table-cell">12:30 PM - 2:30 PM</td>
                 </tr>
                 <tr class="table-row border-b border-gray-200" data-day="1">
-                  <td class="px-6 py-4 event-name">Explorare</td>
-                  <td class="px-6 py-4 table-cell">7:00 AM - 8:00 AM</td>
-                  <td class="px-6 py-4 table-cell">School</td>
-                  <td class="px-6 py-4 table-cell">8:00 AM - 11:00 AM</td>
+                  <td class="px-3 sm:px-6 py-3 sm:py-4 event-name">Explorare</td>
+                  <td class="px-3 sm:px-6 py-3 sm:py-4 table-cell">7:00 AM - 8:00 AM</td>
+                  <td class="px-3 sm:px-6 py-3 sm:py-4 table-cell">School</td>
+                  <td class="px-3 sm:px-6 py-3 sm:py-4 table-cell">8:00 AM - 11:00 AM</td>
                 </tr>
               </tbody>
             </table>
@@ -489,9 +580,9 @@
       </div>
 
       <!-- Day 2 Table -->
-      <div class="container mx-auto px-4 mb-8">
+      <div class="container mx-auto px-2 sm:px-4 mb-6">
         <div class="event-table">
-          <div class="day-header text-center py-6">
+          <div class="day-header text-center py-4 md:py-6">
             <h2>Day 2</h2>
           </div>
           
@@ -499,108 +590,108 @@
             <table class="w-full">
               <thead class="table-header">
                 <tr>
-                  <th class="px-6 py-4 text-left">Event Name</th>
-                  <th class="px-6 py-4 text-left">Registration Time</th>
-                  <th class="px-6 py-4 text-left">Event Location</th>
-                  <th class="px-6 py-4 text-left">Event Timing</th>
+                  <th class="px-3 sm:px-6 py-3 sm:py-4 text-left">Event Name</th>
+                  <th class="px-3 sm:px-6 py-3 sm:py-4 text-left">Registration Time</th>
+                  <th class="px-3 sm:px-6 py-3 sm:py-4 text-left">Event Location</th>
+                  <th class="px-3 sm:px-6 py-3 sm:py-4 text-left">Event Timing</th>
                 </tr>
               </thead>
               <tbody id="day2-tbody">
                 <tr class="table-row border-b border-gray-200" data-day="2">
-                  <td class="px-6 py-4 event-name">Fabula</td>
-                  <td class="px-6 py-4 table-cell">7:00 AM - 8:00 AM</td>
-                  <td class="px-6 py-4 table-cell">401, 402</td>
-                  <td class="px-6 py-4 table-cell">8:00 AM - 12:00 Noon</td>
+                  <td class="px-3 sm:px-6 py-3 sm:py-4 event-name">Fabula</td>
+                  <td class="px-3 sm:px-6 py-3 sm:py-4 table-cell">7:00 AM - 8:00 AM</td>
+                  <td class="px-3 sm:px-6 py-3 sm:py-4 table-cell">401, 402</td>
+                  <td class="px-3 sm:px-6 py-3 sm:py-4 table-cell">8:00 AM - 12:00 Noon</td>
                 </tr>
                 <tr class="table-row border-b border-gray-200" data-day="2">
-                  <td class="px-6 py-4 event-name">Adventurium</td>
-                  <td class="px-6 py-4 table-cell">7:00 AM - 8:00 AM</td>
-                  <td class="px-6 py-4 table-cell">403, 404</td>
-                  <td class="px-6 py-4 table-cell">8:00 AM - 10:30 AM</td>
+                  <td class="px-3 sm:px-6 py-3 sm:py-4 event-name">Adventurium</td>
+                  <td class="px-3 sm:px-6 py-3 sm:py-4 table-cell">7:00 AM - 8:00 AM</td>
+                  <td class="px-3 sm:px-6 py-3 sm:py-4 table-cell">403, 404</td>
+                  <td class="px-3 sm:px-6 py-3 sm:py-4 table-cell">8:00 AM - 10:30 AM</td>
                 </tr>
                 <tr class="table-row border-b border-gray-200" data-day="2">
-                  <td class="px-6 py-4 event-name">Carmen 1</td>
-                  <td class="px-6 py-4 table-cell">7:00 AM - 8:00 AM</td>
-                  <td class="px-6 py-4 table-cell">405, 406</td>
-                  <td class="px-6 py-4 table-cell">8:00 AM - 10:30 AM</td>
+                  <td class="px-3 sm:px-6 py-3 sm:py-4 event-name">Carmen 1</td>
+                  <td class="px-3 sm:px-6 py-3 sm:py-4 table-cell">7:00 AM - 8:00 AM</td>
+                  <td class="px-3 sm:px-6 py-3 sm:py-4 table-cell">405, 406</td>
+                  <td class="px-3 sm:px-6 py-3 sm:py-4 table-cell">8:00 AM - 10:30 AM</td>
                 </tr>
                 <tr class="table-row border-b border-gray-200" data-day="2">
-                  <td class="px-6 py-4 event-name">Carmen 2</td>
-                  <td class="px-6 py-4 table-cell">7:00 AM - 8:00 AM</td>
-                  <td class="px-6 py-4 table-cell">405, 406</td>
-                  <td class="px-6 py-4 table-cell">8:00 AM - 10:00 AM</td>
+                  <td class="px-3 sm:px-6 py-3 sm:py-4 event-name">Carmen 2</td>
+                  <td class="px-3 sm:px-6 py-3 sm:py-4 table-cell">7:00 AM - 8:00 AM</td>
+                  <td class="px-3 sm:px-6 py-3 sm:py-4 table-cell">405, 406</td>
+                  <td class="px-3 sm:px-6 py-3 sm:py-4 table-cell">8:00 AM - 10:00 AM</td>
                 </tr>
                 <tr class="table-row border-b border-gray-200" data-day="2">
-                  <td class="px-6 py-4 event-name">Admeta</td>
-                  <td class="px-6 py-4 table-cell">7:00 AM - 8:00 AM</td>
-                  <td class="px-6 py-4 table-cell">502, 503</td>
-                  <td class="px-6 py-4 table-cell">8:00 AM - 12:00 PM</td>
+                  <td class="px-3 sm:px-6 py-3 sm:py-4 event-name">Admeta</td>
+                  <td class="px-3 sm:px-6 py-3 sm:py-4 table-cell">7:00 AM - 8:00 AM</td>
+                  <td class="px-3 sm:px-6 py-3 sm:py-4 table-cell">502, 503</td>
+                  <td class="px-3 sm:px-6 py-3 sm:py-4 table-cell">8:00 AM - 12:00 PM</td>
                 </tr>
                 <tr class="table-row border-b border-gray-200" data-day="2">
-                  <td class="px-6 py-4 event-name">Fortuna</td>
-                  <td class="px-6 py-4 table-cell">7:00 AM - 8:00 AM</td>
-                  <td class="px-6 py-4 table-cell">504</td>
-                  <td class="px-6 py-4 table-cell">8:00 AM - 11:00 AM</td>
+                  <td class="px-3 sm:px-6 py-3 sm:py-4 event-name">Fortuna</td>
+                  <td class="px-3 sm:px-6 py-3 sm:py-4 table-cell">7:00 AM - 8:00 AM</td>
+                  <td class="px-3 sm:px-6 py-3 sm:py-4 table-cell">504</td>
+                  <td class="px-3 sm:px-6 py-3 sm:py-4 table-cell">8:00 AM - 11:00 AM</td>
                 </tr>
                 <tr class="table-row border-b border-gray-200" data-day="2">
-                  <td class="px-6 py-4 event-name">Mahim - 16</td>
-                  <td class="px-6 py-4 table-cell">7:00 AM - 8:00 AM</td>
-                  <td class="px-6 py-4 table-cell">501, 505, 506, 507</td>
-                  <td class="px-6 py-4 table-cell">9:00 AM - 12:00 PM</td>
+                  <td class="px-3 sm:px-6 py-3 sm:py-4 event-name">Mahim - 16</td>
+                  <td class="px-3 sm:px-6 py-3 sm:py-4 table-cell">7:00 AM - 8:00 AM</td>
+                  <td class="px-3 sm:px-6 py-3 sm:py-4 table-cell">501, 505, 506, 507</td>
+                  <td class="px-3 sm:px-6 py-3 sm:py-4 table-cell">9:00 AM - 12:00 PM</td>
                 </tr>
                 <tr class="table-row border-b border-gray-200" data-day="2">
-                  <td class="px-6 py-4 event-name">Artem</td>
-                  <td class="px-6 py-4 table-cell">7:00 AM - 8:00 AM</td>
-                  <td class="px-6 py-4 table-cell">Art Room</td>
-                  <td class="px-6 py-4 table-cell">8:00 AM - 11:00 AM</td>
+                  <td class="px-3 sm:px-6 py-3 sm:py-4 event-name">Artem</td>
+                  <td class="px-3 sm:px-6 py-3 sm:py-4 table-cell">7:00 AM - 8:00 AM</td>
+                  <td class="px-3 sm:px-6 py-3 sm:py-4 table-cell">Art Room</td>
+                  <td class="px-3 sm:px-6 py-3 sm:py-4 table-cell">8:00 AM - 11:00 AM</td>
                 </tr>
                 <tr class="table-row border-b border-gray-200" data-day="2">
-                  <td class="px-6 py-4 event-name">Gustatio</td>
-                  <td class="px-6 py-4 table-cell">7:00 AM - 8:00 AM</td>
-                  <td class="px-6 py-4 table-cell">Physics Lab</td>
-                  <td class="px-6 py-4 table-cell">8:30 AM - 11:30 AM</td>
+                  <td class="px-3 sm:px-6 py-3 sm:py-4 event-name">Gustatio</td>
+                  <td class="px-3 sm:px-6 py-3 sm:py-4 table-cell">7:00 AM - 8:00 AM</td>
+                  <td class="px-3 sm:px-6 py-3 sm:py-4 table-cell">Physics Lab</td>
+                  <td class="px-3 sm:px-6 py-3 sm:py-4 table-cell">8:30 AM - 11:30 AM</td>
                 </tr>
                 <tr class="table-row border-b border-gray-200" data-day="2">
-                  <td class="px-6 py-4 event-name">Monopolium</td>
-                  <td class="px-6 py-4 table-cell">7:00 AM - 8:00 AM</td>
-                  <td class="px-6 py-4 table-cell">Prefab Hall</td>
-                  <td class="px-6 py-4 table-cell">8:00 AM - 10:00 AM</td>
+                  <td class="px-3 sm:px-6 py-3 sm:py-4 event-name">Monopolium</td>
+                  <td class="px-3 sm:px-6 py-3 sm:py-4 table-cell">7:00 AM - 8:00 AM</td>
+                  <td class="px-3 sm:px-6 py-3 sm:py-4 table-cell">Prefab Hall</td>
+                  <td class="px-3 sm:px-6 py-3 sm:py-4 table-cell">8:00 AM - 10:00 AM</td>
                 </tr>
                 <tr class="table-row border-b border-gray-200" data-day="2">
-                  <td class="px-6 py-4 event-name">Symphonia</td>
-                  <td class="px-6 py-4 table-cell">9:45 AM - 10:30 AM</td>
-                  <td class="px-6 py-4 table-cell">Basketball Court</td>
-                  <td class="px-6 py-4 table-cell">11:00 AM - 12:30 PM</td>
+                  <td class="px-3 sm:px-6 py-3 sm:py-4 event-name">Symphonia</td>
+                  <td class="px-3 sm:px-6 py-3 sm:py-4 table-cell">9:45 AM - 10:30 AM</td>
+                  <td class="px-3 sm:px-6 py-3 sm:py-4 table-cell">Basketball Court</td>
+                  <td class="px-3 sm:px-6 py-3 sm:py-4 table-cell">11:00 AM - 12:30 PM</td>
                 </tr>
                 <tr class="table-row border-b border-gray-200" data-day="2">
-                  <td class="px-6 py-4 event-name">Prize Distribution</td>
-                  <td class="px-6 py-4 table-cell">N/A</td>
-                  <td class="px-6 py-4 table-cell">Basketball Court</td>
-                  <td class="px-6 py-4 table-cell">12:30 PM - 1:15 PM</td>
+                  <td class="px-3 sm:px-6 py-3 sm:py-4 event-name">Prize Distribution</td>
+                  <td class="px-3 sm:px-6 py-3 sm:py-4 table-cell">N/A</td>
+                  <td class="px-3 sm:px-6 py-3 sm:py-4 table-cell">Basketball Court</td>
+                  <td class="px-3 sm:px-6 py-3 sm:py-4 table-cell">12:30 PM - 1:15 PM</td>
                 </tr>
                 <tr class="table-row border-b border-gray-200" data-day="2">
-                  <td class="px-6 py-4 event-name">MR & MS Perseverantia</td>
-                  <td class="px-6 py-4 table-cell">11:00 AM - 12:00 PM</td>
-                  <td class="px-6 py-4 table-cell">Basketball Court</td>
-                  <td class="px-6 py-4 table-cell">1:30 PM - 3:30 PM</td>
+                  <td class="px-3 sm:px-6 py-3 sm:py-4 event-name">MR & MS Perseverantia</td>
+                  <td class="px-3 sm:px-6 py-3 sm:py-4 table-cell">11:00 AM - 12:00 PM</td>
+                  <td class="px-3 sm:px-6 py-3 sm:py-4 table-cell">Basketball Court</td>
+                  <td class="px-3 sm:px-6 py-3 sm:py-4 table-cell">1:30 PM - 3:30 PM</td>
                 </tr>
                 <tr class="table-row border-b border-gray-200" data-day="2">
-                  <td class="px-6 py-4 event-name">Panache</td>
-                  <td class="px-6 py-4 table-cell">1:00 PM - 2:00 PM</td>
-                  <td class="px-6 py-4 table-cell">Basketball Court</td>
-                  <td class="px-6 py-4 table-cell">3:45 PM - 4:45 PM</td>
+                  <td class="px-3 sm:px-6 py-3 sm:py-4 event-name">Panache</td>
+                  <td class="px-3 sm:px-6 py-3 sm:py-4 table-cell">1:00 PM - 2:00 PM</td>
+                  <td class="px-3 sm:px-6 py-3 sm:py-4 table-cell">Basketball Court</td>
+                  <td class="px-3 sm:px-6 py-3 sm:py-4 table-cell">3:45 PM - 4:45 PM</td>
                 </tr>
                 <tr class="table-row border-b border-gray-200" data-day="2">
-                  <td class="px-6 py-4 event-name">Gratia</td>
-                  <td class="px-6 py-4 table-cell">3:00 PM - 3:30 PM</td>
-                  <td class="px-6 py-4 table-cell">Basketball Court</td>
-                  <td class="px-6 py-4 table-cell">5:00 PM - 6:30 PM</td>
+                  <td class="px-3 sm:px-6 py-3 sm:py-4 event-name">Gratia</td>
+                  <td class="px-3 sm:px-6 py-3 sm:py-4 table-cell">3:00 PM - 3:30 PM</td>
+                  <td class="px-3 sm:px-6 py-3 sm:py-4 table-cell">Basketball Court</td>
+                  <td class="px-3 sm:px-6 py-3 sm:py-4 table-cell">5:00 PM - 6:30 PM</td>
                 </tr>
                 <tr class="table-row border-b border-gray-200" data-day="2">
-                  <td class="px-6 py-4 event-name">Prize Distribution</td>
-                  <td class="px-6 py-4 table-cell">N/A</td>
-                  <td class="px-6 py-4 table-cell">Basketball Court</td>
-                  <td class="px-6 py-4 table-cell">6:30 PM - 7:15 PM</td>
+                  <td class="px-3 sm:px-6 py-3 sm:py-4 event-name">Prize Distribution</td>
+                  <td class="px-3 sm:px-6 py-3 sm:py-4 table-cell">N/A</td>
+                  <td class="px-3 sm:px-6 py-3 sm:py-4 table-cell">Basketball Court</td>
+                  <td class="px-3 sm:px-6 py-3 sm:py-4 table-cell">6:30 PM - 7:15 PM</td>
                 </tr>
               </tbody>
             </table>
