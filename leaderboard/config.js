@@ -1,9 +1,9 @@
 module.exports = {
   port: 3000,
   events: [
-    "Admeta",
+    "Admeta: Category 1", "Admeta: Category 2",
     "Artem",
-    "Carmen",
+    "Carmen: Category 1","Carmen: Category 2",
     "Fabula",
     "Fortuna",
     "Codeferno",
@@ -16,11 +16,11 @@ module.exports = {
     "Mr. and Mrs. Perseverantia",
     "Explorare",
     "Monopolium",
-    "Football",
-    "Basketball",
+    "Football: U17 Boys","Football: U19 Boys","Football: U19 Girls",
+    "Basketball: U19 Girls","Basketball: U19 Boys",
     "Gully Cricket",
     "Table Tennis",
-    "Tug of War",
+    "Tug of War: U16 Boys","Tug of War: U16 Girls","Tug of War: U19 Boys","Tug of War: U19 Girls",
     "E-Sports"
   ],
   schools: [
@@ -42,7 +42,6 @@ module.exports = {
     "P16",
     "P17",
     "P18",
-    "P19",
     "P20",
     "P21",
     "P22",
@@ -50,5 +49,7 @@ module.exports = {
     "P24",
     "P25",
     "P26",
+    "P28",
+    "P29",
   ]
 };
