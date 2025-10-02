@@ -186,6 +186,10 @@ app.get('/organizing-committee', (req, res) => {
     res.sendFile(path.join(__dirname, 'views', 'organizing-committee.html'));
 });
 
+app.get('/food-menu', (req, res) => {
+    res.sendFile(path.join(__dirname, 'views', 'food-menu.html'));
+});
+
 app.get('/links', (req, res) => {
     res.sendFile(path.join(__dirname, 'views', 'links.html'));
 });

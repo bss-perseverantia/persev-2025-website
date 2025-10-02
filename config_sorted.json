@@ -216,7 +216,8 @@
       "links": [
         { "name": "Leaderboard", "linkto": "/leaderboard" },
         {"name":"Events", "linkto": "/events"},
-        {"name": "Organizing Committee", "linkto": "/organizing-committee"}
+        {"name": "Organizing Committee", "linkto": "/organizing-committee"},
+        {"name": "Food Menu", "linkto": "/food-menu"}
       ]
     },
     "mainLogo": "/assets/persevnew.avif",
