@@ -189,6 +189,9 @@ app.get('/organizing-committee', (req, res) => {
 app.get('/food-menu', (req, res) => {
     res.sendFile(path.join(__dirname, 'views', 'food-menu.html'));
 });
+app.get("/fortuna",(req,res)=>{
+    res.redirect("https://applied-ppc-essays-word.trycloudflare.com/")
+})
 
 app.get('/links', (req, res) => {
     res.sendFile(path.join(__dirname, 'views', 'links.html'));
